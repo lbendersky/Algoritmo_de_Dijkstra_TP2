@@ -2,48 +2,64 @@ package prin;
 
 import api.ConjuntoTDA;
 import api.GrafoTDA;
+import imp.ConjuntoLD;
 import imp.Dijkstra_forma2;
-import imp.GrafoLD;
 import imp.Dijkstra_forma2.Dijkstra;
 
-public class prin {
+public class prin_forma2 {
 
 	public static int contarVertices(GrafoTDA g) {
 		int cant = 0;
-		int x;
 		ConjuntoTDA c = g.vertices();
-		while(!c.conjuntoVacio()) {
-			x = c.elegir();
+		ConjuntoTDA aux = new ConjuntoLD();
+		aux.inicializarConjunto();
+
+		while (!c.conjuntoVacio()) {
+			int x = c.elegir();
 			c.sacar(x);
+			aux.agregar(x);
 			cant++;
 		}
+
+		while (!aux.conjuntoVacio()) {
+			int x = aux.elegir();
+			aux.sacar(x);
+			c.agregar(x);
+		}
+
 		return cant;
 	}
 		
 	public static void mostrarGrafo(GrafoTDA g) {
-		String cadena = "";
 		ConjuntoTDA v = g.vertices();
+		ConjuntoTDA copia = Dijkstra.copiarConjunto(v); // usa el mismo copiarConjunto que usás en Dijkstra
+
 		int cantidad = contarVertices(g);
 		int[] vertices = new int[cantidad];
-		cadena = cadena + "    ";
 		int inx = 0;
-		while(!v.conjuntoVacio()) {
-			int x = v.elegir();
-			v.sacar(x);
-			vertices[inx] = x;
-			cadena = cadena + x + "   ";
-			inx++;
+
+		// Generar cabecera ordenada
+		System.out.print("    ");
+		while (!copia.conjuntoVacio()) {
+			int x = copia.elegir();
+			copia.sacar(x);
+			vertices[inx++] = x;
 		}
-		System.out.println(cadena);
+
+		for (int x : vertices)
+			System.out.print(x + "   ");
+		System.out.println();
+
+		// Mostrar matriz
 		for (int i = 0; i < cantidad; i++) {
-			cadena = "";
-			cadena = cadena + vertices[i] + "   ";
-			for (int j = 0; j < cantidad; j++) 
-				if(g.existeArista(vertices[i], vertices[j]))
-					cadena = cadena + g.pesoArista(vertices[i], vertices[j]) + "   ";
+			System.out.print(vertices[i] + "   ");
+			for (int j = 0; j < cantidad; j++) {
+				if (g.existeArista(vertices[i], vertices[j]))
+					System.out.print(g.pesoArista(vertices[i], vertices[j]) + "   ");
 				else
-					cadena = cadena + "0   ";
-			System.out.println(cadena);
+					System.out.print("0   ");
+			}
+			System.out.println();
 		}
 	}
 	
@@ -90,7 +106,9 @@ public class prin {
 		copia.agregarArista(5, 4, 2);
 		copia.agregarArista(5, 6, 2);
 		copia.agregarArista(6, 3, 3);
-		Dijkstra_forma2 grafoReducido = Dijkstra.segundoMetodo(1, copia);
+		GrafoTDA grafoReducido = Dijkstra.segundoMetodo(1, copia);
+		System.out.println(" ");
+		System.out.println("Matriz de adyacencia resultante, después de implementar el 2do método de Dijkstra: ");
 		mostrarGrafo(grafoReducido);
 	}
 

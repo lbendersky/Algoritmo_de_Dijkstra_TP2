@@ -9,4 +9,5 @@ public interface GrafoTDA {
     void eliminarArista(int oirgen, int destino);
     boolean existeArista(int origen, int destino);
     int pesoArista(int origen, int destino);
+    ConjuntoTDA vecinos (int v);
 }

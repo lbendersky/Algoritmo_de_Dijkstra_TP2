@@ -26,6 +26,7 @@ public class Dijkstra_forma2 implements GrafoTDA {
 
 	@Override
 	public void agregarVertice(int v) {
+        if (vertice2nodo(v) != null) return;
 		NodoVertice nuevo = new NodoVertice();
 		nuevo.vertice = v;
 		nuevo.sigVertice = origen;
@@ -35,7 +36,7 @@ public class Dijkstra_forma2 implements GrafoTDA {
 
 	@Override
 	public void eliminarVertice(int v) {
-		if (origen.vertice == v)
+		if (origen.vertice == v && origen != null)
 			origen = origen.sigVertice;
 		NodoVertice turista = origen;
 		while(turista != null) {
@@ -91,6 +92,7 @@ public class Dijkstra_forma2 implements GrafoTDA {
 	@Override
 	public boolean existeArista(int origen, int destino) {
 		NodoVertice o = vertice2nodo(origen);
+        if (o == null) return false;
 		NodoArista turista = o.aristas;
 		while(turista != null && turista.destino.vertice != destino)
 			turista = turista.sigArista;
@@ -100,20 +102,13 @@ public class Dijkstra_forma2 implements GrafoTDA {
 	@Override
 	public int pesoArista(int origen, int destino) {
 		NodoVertice o = vertice2nodo(origen);
-
-        if(o == null) {
-            agregarVertice(origen);
-            o = vertice2nodo(origen);
-        }
+        if (o == null) return -1;
 
 		NodoArista turista = o.aristas;
+        while (turista != null && turista.destino.vertice != destino)
+            turista = turista.sigArista;
+        if (turista == null) return -1;
 
-        if (turista == null) {
-            agregarArista(origen, destino, 1);
-        }
-
-		while(turista.destino.vertice != destino)
-			turista = turista.sigArista;
 		return (turista.peso);
 	}
 
@@ -128,125 +123,142 @@ public class Dijkstra_forma2 implements GrafoTDA {
 	
 	private void eliminarAristaEnVertice(NodoVertice vertice, int destino) {
 		NodoArista turista = vertice.aristas;
-		if (turista != null) {
-			if(turista.destino.vertice == destino)
-				vertice.aristas = turista.sigArista;
-		} else {
-			while(turista.sigArista != null && turista.sigArista.destino.vertice != destino)
-				turista = turista.sigArista;
-			if(turista.sigArista != null)
-				turista.sigArista = turista.sigArista.sigArista;
-		}
-	}
+        NodoArista anterior = null;
+        while (turista != null && turista.destino.vertice != destino) {
+            anterior = turista;
+            turista = turista.sigArista;
+        }
+        if (turista != null) {
+            if (anterior == null)
+                vertice.aristas = turista.sigArista;
+            else
+                anterior.sigArista = turista.sigArista;
+        }
+    }
+	
 
-    public class Dijkstra {
-            public static Dijkstra_forma2 segundoMetodo(int origen, GrafoTDA grafo) {
-                ConjuntoTDA vertices = grafo.vertices(); //Obtengo los vertices del grafo
-                
-                int[] distancias = new int[10];
-                boolean[] visitado = new boolean[10];
-                int[] predecesores = new int[100];
-                
-                for (int i = 0; i < 10; i++) {
-                    distancias[i] = 11;
-                    visitado[i] = false;
-                    predecesores[i] = -1;
-                }
-                distancias[origen] = 0;
-
-                while(!todosVisitados(vertices, visitado)) {
-                    int u = verticeMinDistNoVisitado(vertices, distancias, visitado);
-
-                    if(u == -1) break;
-                    visitado[u] = true;
-
-                    ConjuntoTDA vecinos = grafo.vertices();
-
-                    while(!vecinos.conjuntoVacio()) {
-                        int b = vecinos.elegir();
-                        vecinos.sacar(b);
-
-                        if(grafo.existeArista(u, b)) {
-                            int peso = grafo.pesoArista(u, b);
-
-                            if(!visitado[b] && distancias[u] + peso < distancias[b]) {
-                                distancias[b] = distancias[u] + peso;
-                                predecesores[b] = u;
-                            }
-                        }   
-                    }
-                }
-
-                System.out.println("Distancias minimas desde el nodo:  " + origen + ":");
-                for (int i = 0; i < distancias.length; i++) {
-                    if(distancias[i] != 11) {
-                        System.out.println("Hasta: " + i + ": " + distancias[i]);
-                    }
-                }
-
-                Dijkstra_forma2 grafoResultado = new Dijkstra_forma2();
-                grafoResultado.inicializarGrafo();
-
-                ConjuntoTDA versos = copiarConjunto(vertices);
-
-                while(!versos.conjuntoVacio()) {
-                    int v = versos.elegir();
-                    versos.sacar(v);
-                    grafoResultado.agregarVertice(v);
-                }
-                
-                grafoResultado.agregarVertice(origen);
-
-                for(int i = 0; i < 100; i++) { 
-                    if(predecesores[i] != -1) {
-                        grafoResultado.agregarVertice(i);
-                        grafoResultado.agregarVertice(predecesores[i]);
-
-                        int desde = predecesores[i];
-                        int hasta = i;
-                        int peso = grafo.pesoArista(desde, hasta);
-                        grafoResultado.agregarArista(desde, hasta, peso);
-                    }
-                }
-                return grafoResultado;
+    public ConjuntoTDA vecinos(int v) {
+        ConjuntoTDA vecinos = new ConjuntoLD();     // Crea un conjunto para guardar los vecinos del vértice v
+        vecinos.inicializarConjunto();
+    
+        NodoVertice nodoOrigen = vertice2nodo(v);     // Busca el nodo del vértice v en la lista de vértices
+        
+        if (nodoOrigen != null) {
+            NodoArista turista = nodoOrigen.aristas;  // Recorre todas las aristas (vecinos) del nodo origen y los agrega al conjunto vecinos
+            while (turista != null) {
+                vecinos.agregar(turista.destino.vertice);
+                turista = turista.sigArista;
             }
+        }
+        return vecinos; // Devuelve el conjunto de vecinos
+    }
 
-            private static boolean todosVisitados(ConjuntoTDA vertices, boolean[] visitado) {
-                ConjuntoTDA copia = copiarConjunto(vertices);
 
-                while(!copia.conjuntoVacio()) {
-                    int x = copia.elegir();
-                    copia.sacar(x);
-                    if (!visitado[x]) 
-                        return false;
-                }
-
-                return true;
-            }
-
-            private static ConjuntoTDA copiarConjunto(ConjuntoTDA original) {
+    public class Dijkstra {            
+        public static ConjuntoTDA copiarConjunto(ConjuntoTDA original) {
+            // Crea una copia exacta del conjunto original sin modificarlo
                 ConjuntoTDA copia = new ConjuntoLD();
                 copia.inicializarConjunto();
                 ConjuntoTDA aux = new ConjuntoLD();
                 aux.inicializarConjunto();
 
+            // Extrae cada elemento del conjunto original y lo agrega tanto a aux como a copia
                 while(!original.conjuntoVacio()) {
                     int elemento = original.elegir();
                     original.sacar(elemento);
                     aux.agregar(elemento);
                     copia.agregar(elemento);
                 }
-
+        // Vuelve a agregar todos los elementos de aux al conjunto original para no modificarlo
                 while(!aux.conjuntoVacio()) {
-                    int elemento = aux.elegir();
-                    aux.sacar(elemento);
-                    original.agregar(elemento);
+                    int elemen = aux.elegir();
+                    aux.sacar(elemen);
+                    original.agregar(elemen);
                 }
 
-                return copia;
+                return copia; // Devuelve la copia creada
             }
 
+            public static Dijkstra_forma2 segundoMetodo(int origen, GrafoTDA grafo) {
+                ConjuntoTDA vertices = grafo.vertices(); //Obtengo los vertices del grafo
+                
+                
+            // Inicializa los arreglos para distancias, visitados y predecesores
+                int[] distancias = new int[10];
+                boolean[] visitado = new boolean[10];
+                int[] predecesores = new int[10];
+                
+            // Inicializa distancias con un valor grande (11), visitado en falso y predecesores en -1
+                for (int i = 0; i < 10; i++) {
+                    distancias[i] = 11;
+                    visitado[i] = false; //Si aun no se visitó.
+                    predecesores[i] = -1; //Sin predecesor.
+                }
+                distancias[origen] = 0;
+
+        // Mientras no se hayan visitado todos los vértices
+                while(!todosVisitados(vertices, visitado)) {
+                    // Obtiene el vértice no visitado con distancia mínima
+                    int u = verticeMinDistNoVisitado(vertices, distancias, visitado);
+
+                    if(u == -1) break; // Si no quedan vértices alcanzables, termina
+                    visitado[u] = true; // Marca u como visitado
+
+                    // Obtiene los vecinos de u
+                    ConjuntoTDA vecinos = grafo.vecinos(u);
+
+                    // Para cada vecino b, si no está visitado y mejora la distancia, actualiza distancia y predecesor
+                    while(!vecinos.conjuntoVacio()) {
+                        int b = vecinos.elegir();
+                        vecinos.sacar(b);
+
+                        if (!visitado[b] && distancias[u] + grafo.pesoArista(u, b) < distancias[b]) {
+                            distancias[b] = distancias[u] + grafo.pesoArista(u, b);
+                            predecesores[b] = u;
+                        } 
+                    }
+                }
+                // Crea un nuevo grafo para almacenar el árbol de caminos mínimos resultante
+                Dijkstra_forma2 resultado = new Dijkstra_forma2();
+                resultado.inicializarGrafo();
+
+                // Copia los vértices para agregarlos al grafo resultado
+                ConjuntoTDA copiaVertices = copiarConjunto(vertices);
+                while (!copiaVertices.conjuntoVacio()) {
+                    int x = copiaVertices.elegir();
+                    copiaVertices.sacar(x);
+                    resultado.agregarVertice(x);
+                }
+
+                // Recorre predecesores para agregar las aristas que forman el camino mínimo
+                for (int i = 0; i < 10; i++) {
+                    if (predecesores[i] != -1) {
+                        int desde = predecesores[i];
+                        int hasta = i;
+                        int peso = grafo.pesoArista(desde, hasta);
+                        resultado.agregarArista(desde, hasta, peso);
+                    }
+                }
+
+            return resultado; // Devuelve el grafo resultado con los caminos mínimos
+        }
+            private static boolean todosVisitados(ConjuntoTDA vertices, boolean[] visitado) {
+                // Verifica si todos los vértices del conjunto han sido visitados
+                ConjuntoTDA copia = copiarConjunto(vertices);
+
+                while(!copia.conjuntoVacio()) {
+                    int x = copia.elegir();
+                    copia.sacar(x);
+                    if (!visitado[x]) 
+                        return false; // Si encuentra alguno no visitado, retorna falso
+                }
+
+                return true;  // Todos visitados
+            }
+
+
             private static int verticeMinDistNoVisitado(ConjuntoTDA vertices, int[] distancias,boolean[] visitado) {
+                // Busca el vértice no visitado con la distancia mínima
                 ConjuntoTDA copia = copiarConjunto(vertices);
                 int minimaDistancia = 10;
                 int minimoVertice = -1;
@@ -260,7 +272,7 @@ public class Dijkstra_forma2 implements GrafoTDA {
                     }
                 }
 
-                return minimoVertice;
+                return minimoVertice; // Retorna el vértice con distancia mínima o -1 si no hay ninguno
             }
         }
 
