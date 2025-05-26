@@ -84,6 +84,7 @@ public class prin_forma2 {
 		a.agregarArista(5, 4, 2);
 		a.agregarArista(5, 6, 2);
 		a.agregarArista(6, 3, 3);
+		System.out.println("Matriz de adyacencia de grafo original: ");
 		mostrarGrafo(a);
 
 
