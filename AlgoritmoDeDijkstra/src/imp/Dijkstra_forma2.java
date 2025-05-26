@@ -177,7 +177,7 @@ public class Dijkstra_forma2 implements GrafoTDA {
                     }
                 }
 
-                System.out.println("Distancias minimas desde el nodo: " + origen + ":");
+                System.out.println("Distancias minimas desde el nodo:  " + origen + ":");
                 for (int i = 0; i < distancias.length; i++) {
                     if(distancias[i] != 11) {
                         System.out.println("Hasta: " + i + ": " + distancias[i]);
