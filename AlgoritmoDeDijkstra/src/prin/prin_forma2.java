@@ -9,11 +9,15 @@ import imp.Dijkstra_forma2.Dijkstra;
 public class prin_forma2 {
 
 	public static int contarVertices(GrafoTDA g) {
+		// Inicializa el contador de vértices
 		int cant = 0;
+		// Obtiene el conjunto de vértices del grafo
 		ConjuntoTDA c = g.vertices();
+		// Crea un conjunto auxiliar para no perder los elementos al recorrer.
 		ConjuntoTDA aux = new ConjuntoLD();
 		aux.inicializarConjunto();
 
+		// Recorre el conjunto de vértices original, cuenta y copia en aux
 		while (!c.conjuntoVacio()) {
 			int x = c.elegir();
 			c.sacar(x);
@@ -21,31 +25,35 @@ public class prin_forma2 {
 			cant++;
 		}
 
+		// Restaura el conjunto original con los elementos del auxiliar
 		while (!aux.conjuntoVacio()) {
 			int x = aux.elegir();
 			aux.sacar(x);
 			c.agregar(x);
 		}
 
-		return cant;
+		return cant; // Devuelve la cantidad de vértices contados
 	}
 		
 	public static void mostrarGrafo(GrafoTDA g) {
+		// Obtiene el conjunto de vértices del grafo
 		ConjuntoTDA v = g.vertices();
-		ConjuntoTDA copia = Dijkstra.copiarConjunto(v); // usa el mismo copiarConjunto que usás en Dijkstra
-
+		// Crea una copia del conjunto de vértices para no modificar el original
+		ConjuntoTDA copia = Dijkstra.copiarConjunto(v); //
+		// Cuenta cuántos vértices hay en el grafo
 		int cantidad = contarVertices(g);
+		// Crea un array para guardar los vértices y ordenarlos
 		int[] vertices = new int[cantidad];
 		int inx = 0;
 
-		// Generar cabecera ordenada
+		// Genera la cabecera de la matriz de adyacencia
 		System.out.print("    ");
 		while (!copia.conjuntoVacio()) {
 			int x = copia.elegir();
 			copia.sacar(x);
 			vertices[inx++] = x;
 		}
-
+		// Imprime la fila de vértices (cabecera)
 		for (int x : vertices)
 			System.out.print(x + "   ");
 		System.out.println();
@@ -62,6 +70,7 @@ public class prin_forma2 {
 			System.out.println();
 		}
 	}
+	
 	
 	public static void main(String[] args) {
 		//GrafoTDA a = new GrafoMA();
