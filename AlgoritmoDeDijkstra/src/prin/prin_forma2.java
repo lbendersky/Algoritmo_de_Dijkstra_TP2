@@ -5,6 +5,7 @@ import api.GrafoTDA;
 import imp.ConjuntoLD;
 import imp.Dijkstra_forma2;
 import imp.Dijkstra_forma2.Dijkstra;
+import java.util.Arrays;
 
 public class prin_forma2 {
 
@@ -53,6 +54,9 @@ public class prin_forma2 {
 			copia.sacar(x);
 			vertices[inx++] = x;
 		}
+
+		Arrays.sort(vertices);
+
 		// Imprime la fila de vértices (cabecera)
 		for (int x : vertices)
 			System.out.print(x + "   ");
